@@ -1,6 +1,7 @@
 import React from 'react'
 import Feed from './Feed'
 import Image from 'next/image'
+import {urlPatternValidation} from '../utils/utils'
 
 const Post = ({post,votes}) => {
   return (
@@ -13,7 +14,7 @@ const Post = ({post,votes}) => {
             <p>{post.content}</p>
         </div>
         <div>
-            <Image src={`${post.image}`} height={100} width={100}/>
+            <Image src={`${urlPatternValidation(post.image)?post.image:'https://via.placeholder.com/150'}`} height={100} width={100} />
         </div>
 
 

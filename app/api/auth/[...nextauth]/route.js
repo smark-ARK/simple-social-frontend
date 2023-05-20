@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const handler = NextAuth({
+export const authOptions = {
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     CredentialsProvider({
       // The name to display on the sign in form (e.g. 'Sign in with...')
@@ -27,11 +28,12 @@ const handler = NextAuth({
         fd.append("username", credentials.username);
         fd.append("password", credentials.password);
         console.log(fd);
-        const res = await fetch("https://simple-social.onrender.com/login/", {
+        const res = await fetch(`${process.env.LOCAL_URL}/login/`, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
           body: fd,
         });
+        console.log("fetched");
         const user = await res.json();
         // console.log(user.detail[0].loc);
         // console.log(user.detail[1].loc);
@@ -39,6 +41,7 @@ const handler = NextAuth({
 
         // If no error and we have user data, return it
         if (res.ok && user) {
+          console.log("hello");
           return user;
         }
         // Return null if user data could not be retrieved
@@ -46,6 +49,18 @@ const handler = NextAuth({
       },
     }),
   ],
-});
+  callbacks: {
+    async jwt({ token, user }) {
+      return { ...token, ...user };
+    },
+
+    async session({ session, token, user }) {
+      session.user = token;
+      return session;
+    },
+  },
+};
+
+const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
